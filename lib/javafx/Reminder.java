@@ -7,17 +7,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Reminder {
     private String taskTitle;
     private String date; // Stored as String in "dd/MM/yyyy" format
-    private String time;
     private String message;
     private String reminderType; // Stores: "One day before", "One week before", "One month before", "Custom"
 
     // Default constructor for Jackson
     public Reminder() {}
 
-    public Reminder(String taskTitle, String date, String time, String message, String reminderType) {
+    public Reminder(String taskTitle, String date,  String message, String reminderType) {
         this.taskTitle = taskTitle;
         this.date = date;
-        this.time = time;
         this.message = message;
         this.reminderType = reminderType;
     }
@@ -38,13 +36,6 @@ public class Reminder {
         this.date = date;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
 
     public String getMessage() {
         return message;
@@ -71,7 +62,6 @@ public class Reminder {
         return "Reminder{" +
                 "taskTitle='" + taskTitle + '\'' +
                 ", date='" + date + '\'' +
-                ", time='" + time + '\'' +
                 ", message='" + message + '\'' +
                 ", reminderType='" + reminderType + '\'' +
                 '}';

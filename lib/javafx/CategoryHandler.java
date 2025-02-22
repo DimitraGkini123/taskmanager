@@ -187,17 +187,34 @@ public class CategoryHandler {
         }
     }
     
-
     private static void removeTasksWithCategory(String deletedCategory, TableView<Task> taskTable) { 
         System.out.println("🗑 Removing tasks with category: " + deletedCategory);
         System.out.println(" Tasks before deletion: ");
         taskTable.getItems().forEach(task -> System.out.println("  - " + task.getTitle() + " | Category: " + task.getCategory()));
+    
+
         List<Task> taskList = JSONHandler.readTasks();
+        
+        List<Task> tasksToDelete = taskList.stream()
+            .filter(task -> task.getCategory().equalsIgnoreCase(deletedCategory))
+            .toList(); // Collect all tasks in the category
+
+        for (Task task : tasksToDelete) {
+            ReminderHandler.deleteRemindersForTask(task.getTitle());
+        }
+
         List<Task> updatedTasks = new ArrayList<>(taskList);
         updatedTasks.removeIf(task -> task.getCategory().equalsIgnoreCase(deletedCategory));
         JSONHandler.writeTasks(FXCollections.observableArrayList(updatedTasks));
+        ObservableList<Task> newTaskList = FXCollections.observableArrayList(updatedTasks);
+        taskTable.setItems(newTaskList);
+        taskTable.refresh();  
+    
         System.out.println("Tasks under category '" + deletedCategory + "' have been deleted.");
+        System.out.println("Reminders for these tasks have been deleted.");
+        System.out.println("Remaining tasks after deletion: " + newTaskList.size());
     }
+    
 
     private static void refreshTaskTable() {  
         if (taskTableRef == null) {

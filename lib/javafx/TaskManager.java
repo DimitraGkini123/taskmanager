@@ -36,18 +36,139 @@ public class TaskManager extends Application {
     private TableView<Task> tableView = new TableView<>();
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage primaryStage) {
+        showMedialabAssistant(primaryStage); // Open Medialab Assistant First
+    }
+    private Label totalLabel;
+    private Label completedLabel;
+    private Label delayedLabel;
+    private Label upcomingLabel;
+
+private void showMedialabAssistant(Stage primaryStage) {
+    Stage assistantStage = new Stage();
+
+    assistantStage.setTitle("Medialab Assistant");
+
+    // ✅ Create labels for statistics (dynamic updating)
+    Label titleLabel = new Label("Task Summary");
+    titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+    totalLabel = new Label();
+    completedLabel = new Label();
+    delayedLabel = new Label();
+    upcomingLabel = new Label();
+
+    updateTaskStatistics();
+
+    VBox statsBox = new VBox(10, titleLabel, totalLabel, completedLabel, delayedLabel, upcomingLabel);
+    statsBox.setStyle("-fx-padding: 15px; -fx-alignment: center; -fx-background-color: #f0f0f0;");
+    statsBox.setMinHeight(180); 
+
+    // ✅ Buttons for actions
+    Label welcomeLabel = new Label("Welcome to Medialab Assistant");
+    welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+    Button manageTasksButton = new Button("Manage Tasks");
+    manageTasksButton.setMinWidth(250);
+    manageTasksButton.setOnAction(e -> {
+        showTaskManager(primaryStage);
+        updateTaskStatistics(); // ✅ Refresh statistics
+    });
+
+    Button manageCategoriesButton = new Button("See Categories");
+    manageCategoriesButton.setMinWidth(250);
+    manageCategoriesButton.setOnAction(e -> {
+        CategoryHandler.showManageCategoriesDialog(tableView);
+        updateTaskStatistics();
+    });
+
+    Button managePrioritiesButton = new Button("See Priorities");
+    managePrioritiesButton.setMinWidth(250);
+    managePrioritiesButton.setOnAction(e -> {
+        PriorityHandler.showManagePrioritiesDialog(tableView);
+        updateTaskStatistics();
+    });
+
+    Button seeRemindersButton = new Button("See Reminders");
+    seeRemindersButton.setMinWidth(250);
+    seeRemindersButton.setOnAction(e -> {
+        ReminderHandler.showRemindersDialog();
+        updateTaskStatistics();
+    });
+
+    VBox buttonBox = new VBox(10, manageTasksButton, manageCategoriesButton, managePrioritiesButton, seeRemindersButton);
+    buttonBox.setStyle("-fx-padding: 15px; -fx-alignment: center;");
+    buttonBox.setMinHeight(200);
+
+    // ✅ Main layout
+    VBox mainLayout = new VBox(20, statsBox, buttonBox);
+    mainLayout.setStyle("-fx-padding: 20px; -fx-alignment: center;");
+
+    Scene scene = new Scene(mainLayout, 400, 400);
+    assistantStage.setScene(scene);
+    assistantStage.setOnShown(e -> {
+        List<Task> tasks = JSONHandler.readTasks();
+        ObservableList<Task> taskList = FXCollections.observableArrayList(tasks);
+        showDelayedTasksPopup(assistantStage, taskList);
+    });
+    assistantStage.show();
+}
+
+    
+private void showDelayedTasksPopup(Stage owner, ObservableList<Task> taskList) {
+    List<Task> delayedTasks = new ArrayList<>();
+
+    for (Task task : taskList) {
+        if ("Delayed".equalsIgnoreCase(task.getStatus())) {
+            delayedTasks.add(task);
+        }
+    }
+
+    if (!delayedTasks.isEmpty()) {
+        StringBuilder message = new StringBuilder("The following tasks are delayed:\n\n");
+
+        for (Task task : delayedTasks) {
+            message.append("• ").append(task.getTitle()).append(" (Due: ").append(task.getDueDate()).append(")\n");
+        }
+
+        showAlert(owner, "Delayed Tasks Alert", message.toString());
+    }
+}
+private void updateTaskStatistics() {
+    List<Task> tasks = JSONHandler.readTasks(); // ✅ Reload latest tasks
+    long totalTasks = tasks.size();
+    long completedTasks = tasks.stream().filter(task -> "Completed".equalsIgnoreCase(task.getStatus())).count();
+    long delayedTasks = tasks.stream().filter(task -> "Delayed".equalsIgnoreCase(task.getStatus())).count();
+    long upcomingTasks = tasks.stream().filter(task -> isTaskDueWithin7Days(task.getDueDate())).count();
+
+    totalLabel.setText("Total Tasks: " + totalTasks);
+    completedLabel.setText("Completed Tasks: " + completedTasks);
+    delayedLabel.setText("Delayed Tasks: " + delayedTasks);
+    upcomingLabel.setText(" Tasks Due in 7 Days: " + upcomingTasks);
+}
+
+    private boolean isTaskDueWithin7Days(String dueDate) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate taskDate = LocalDate.parse(dueDate, formatter);
+            LocalDate today = LocalDate.now();
+            return !taskDate.isBefore(today) && !taskDate.isAfter(today.plusDays(7));
+        } catch (DateTimeParseException e) {
+            System.err.println("⚠ Invalid date format for task: " + dueDate);
+            return false;
+        }
+    }
+        
         //Timeline reminderChecker = new Timeline(new KeyFrame(Duration.minutes(10), event -> checkReminders()));
         //reminderChecker.setCycleCount(Animation.INDEFINITE);
        // reminderChecker.play();
 
-
+    private void showTaskManager(Stage stage) {
         // Load tasks from JSON file using JSONHandler
         List<Task> tasks = JSONHandler.readTasks();
         ObservableList<Task> taskList = FXCollections.observableArrayList(tasks);
         tasks.sort(Comparator.comparing(Task::getCategory));
         updateTaskStatuses(taskList);
-        stage.setOnShown(e -> showDelayedTasksPopup(stage, taskList));
         tableView.setItems(taskList);
 
 
@@ -180,17 +301,6 @@ searchBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
         // Add the delete column to the TableView
         tableView.getColumns().add(deleteCol);
 
-        Button manageCategoriesButton = new Button("See Categories");
-        manageCategoriesButton.setStyle("-fx-font-size: 14px;");
-        manageCategoriesButton.setOnAction(e -> {
-        CategoryHandler.showManageCategoriesDialog(tableView);
-        });
-
-        Button managePrioritiesButton = new Button("See Priorities");
-        managePrioritiesButton.setStyle("-fx-font-size: 14px;");
-        managePrioritiesButton.setOnAction(e -> {
-        PriorityHandler.showManagePrioritiesDialog(tableView);
-        });
 
         Button setReminderButton = new Button("Set Reminder");
         setReminderButton.setOnAction(e -> {
@@ -206,12 +316,9 @@ searchBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
         ReminderHandler.showSetReminderDialog(selectedTask);
         });
 
-        Button seeRemindersButton = new Button("See Reminders");
-        seeRemindersButton.setOnAction(e -> ReminderHandler.showRemindersDialog());
-
 
         // Create a horizontal box for the buttons
-        HBox buttonBox = new HBox(10, addButton, editButton, manageCategoriesButton,managePrioritiesButton, setReminderButton, seeRemindersButton);
+        HBox buttonBox = new HBox(10, addButton, editButton, setReminderButton );
         buttonBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
 
      // Main Layout (Search Bar + Buttons + Task Table)
@@ -237,58 +344,44 @@ searchBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
         tableView.setItems(filteredTasks);
         tableView.refresh();
     }
+
+    private boolean isValidDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     
-    private void showDelayedTasksPopup(Stage owner, ObservableList<Task> taskList) {
-        List<Task> delayedTasks = new ArrayList<>();
-    
-        for (Task task : taskList) {
-            if ("Delayed".equalsIgnoreCase(task.getStatus())) {
-                delayedTasks.add(task);
-            }
-        }
-    
-        if (!delayedTasks.isEmpty()) {
-            StringBuilder message = new StringBuilder("⚠️ The following tasks are delayed:\n\n");
-    
-            for (Task task : delayedTasks) {
-                message.append("• ").append(task.getTitle()).append(" (Due: ").append(task.getDueDate()).append(")\n");
-            }
-    
-            showAlert(owner, "Delayed Tasks Alert", message.toString());
+        try {
+            LocalDate parsedDate = LocalDate.parse(date, formatter);
+            return !parsedDate.isBefore(LocalDate.now()); // ✅ Ensure date is **not in the past**
+        } catch (DateTimeParseException e) {
+            return false; // ❌ Invalid format
         }
     }
     
-    
-private boolean isValidDateFormat(String date) {
-    return date.matches("\\d{2}/\\d{2}/\\d{4}"); // Ensures format "dd/MM/yyyy"
-}
 
-private boolean isValidTimeFormat(String time) {
-    return time.matches("\\d{2}:\\d{2}"); // Ensures format "HH:mm"
-}
+private void updateTaskStatuses(ObservableList<Task> taskList) {
+    LocalDate today = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Matches JSON date format
 
+    for (Task task : taskList) {
+        if (!"Completed".equalsIgnoreCase(task.getStatus())) {
+            try {
+                LocalDate taskDueDate = LocalDate.parse(task.getDueDate(), formatter);
 
-
-    private void updateTaskStatuses(ObservableList<Task> taskList) {
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Matches JSON date format
-
-        for (Task task : taskList) {
-            if (!"Completed".equalsIgnoreCase(task.getStatus())) {
-                try {
-                    LocalDate taskDueDate = LocalDate.parse(task.getDueDate(), formatter);
-
-                    if (taskDueDate.isBefore(today)) {
-                        task.setStatus("Delayed");
-                    }
-                } catch (DateTimeParseException e) {
-                    System.err.println("Invalid date format for task: " + task.getTitle() + " - " + task.getDueDate());
+                if ("Delayed".equalsIgnoreCase(task.getStatus()) && taskDueDate.isAfter(today)) {
+                    task.setStatus("Open");
                 }
+                // If the due date is in the past, mark it as delayed
+                else if (taskDueDate.isBefore(today)) {
+                    task.setStatus("Delayed");
+                }
+            } catch (DateTimeParseException e) {
+                System.err.println("Invalid date format for task: " + task.getTitle() + " - " + task.getDueDate());
             }
         }
-
-        JSONHandler.writeTasks(taskList);
     }
+
+    JSONHandler.writeTasks(taskList);
+}
+
 
 private ObservableList<String> categories = FXCollections.observableArrayList("General");
 private ComboBox<String> createCategorySelectionBox() {
@@ -327,7 +420,7 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
     ComboBox<String> categoryComboBox = createCategorySelectionBox();
     TextField dueDateField = new TextField();
     ComboBox<String> priorityComboBox = createPrioritySelectionBox();
-    ChoiceBox<String> statusChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList("Open", "In Progress", "Postponed", "Completed", "Delayed"));
+    ChoiceBox<String> statusChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList("Open", "In Progress", "Postponed", "Completed"));
     statusChoiceBox.setValue("Open");
 
     GridPane gridPane = new GridPane();
@@ -348,20 +441,42 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
 
     Button saveButton = new Button("Save Task");
     saveButton.setOnAction(e -> {
+        String dueDate = dueDateField.getText();
+        String Title = titleField.getText().trim();
+
+        if (Title.isEmpty()) {
+            showAlert(dialog, "Invalid Input", "Task title cannot be empty.");
+            return;
+        }
+    
+    
+        if (!isValidDate(dueDate)) {
+            showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+            return; 
+        }
+        boolean titleExists = taskList.stream().anyMatch(task -> task.getTitle().equalsIgnoreCase(Title));
+        if (titleExists) {
+            showAlert(dialog, "Duplicate Task Title", "A task with this title already exists. Please choose a different title.");
+            return;
+        }
         Task newTask = new Task(
-                titleField.getText(),
-                descriptionField.getText(),
-                categoryComboBox.getValue(),
-                priorityComboBox.getValue(),
-                dueDateField.getText(),
-                statusChoiceBox.getValue()
+            titleField.getText(),
+            descriptionField.getText(),
+            categoryComboBox.getValue(),
+            priorityComboBox.getValue(),
+            dueDateField.getText(),
+            statusChoiceBox.getValue()
         );
+    
         taskList.add(newTask);
         taskList.sort(Comparator.comparing(Task::getCategory));
         JSONHandler.writeTasks(taskList);
+
+        updateTaskStatistics();
+    
         ObservableList<Task> updatedTaskList = FXCollections.observableArrayList(JSONHandler.readTasks());
         tableView.setItems(updatedTaskList);
-        tableView.refresh(); 
+        tableView.refresh();
         dialog.close();
     });
     
@@ -383,6 +498,7 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Edit Task");
+        String originalTitle = task.getTitle();
 
         TextField titleField = new TextField(task.getTitle());
         TextField descriptionField = new TextField(task.getDescription());
@@ -391,7 +507,7 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
         TextField dueDateField = new TextField(task.getDueDate());
         ComboBox<String> priorityComboBox = createPrioritySelectionBox();
         priorityComboBox.setValue(task.getPriority());
-        ChoiceBox<String> statusChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList("Open", "In Progress", "Postponed", "Completed", "Delayed"));
+        ChoiceBox<String> statusChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList("Open", "In Progress", "Postponed", "Completed"));
         statusChoiceBox.setValue(task.getStatus());
 
         GridPane gridPane = new GridPane();
@@ -412,9 +528,55 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
 
         Button saveButton = new Button("Save Changes");
         saveButton.setOnAction(e -> {
+            String oldTitle = task.getTitle();
             String oldDueDate = task.getDueDate(); 
             String newDueDate = dueDateField.getText();
-            task.setTitle(titleField.getText());
+            String newTitle = titleField.getText().trim();
+    
+
+            if (newTitle.isEmpty()) {
+                showAlert(dialog, "Invalid Input", "Task title cannot be empty.");
+                return;
+            }
+
+            if (!isValidDate(newDueDate)) {
+                showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+                return; 
+            }
+        
+            boolean titleExists = taskList.stream()
+            .anyMatch(existingTask -> !existingTask.getTitle().equals(oldTitle) &&
+                                  existingTask.getTitle().equalsIgnoreCase(newTitle));
+
+            if (titleExists) {
+                showAlert(dialog, "Duplicate Task Title", "A task with this title already exists. Please choose a different title.");
+                return;
+             }
+
+            if (isCustomReminderAfterDueDate(task.getTitle(), newDueDate)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Reminder Warning");
+                alert.setHeaderText("Reminder Exists After New Due Date");
+                alert.setContentText("A reminder is set after the new due date. Please update your reminders.");
+        
+                ButtonType updateReminders = new ButtonType("Update Reminders");
+                alert.getButtonTypes().setAll(updateReminders);
+
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.setMinWidth(400);  // Set minimum width
+                dialogPane.setMinHeight(200); // Set minimum height
+                dialogPane.setPrefSize(450, 250); // Set preferred size
+        
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == updateReminders) {
+                    ReminderHandler.showRemindersDialog();
+                    return; // Stop saving to let the user update the reminders first
+                }
+            }
+            boolean titleChanged = !originalTitle.equals(newTitle);
+            
+
+            task.setTitle(newTitle);
             task.setDescription(descriptionField.getText());
             task.setCategory(categoryComboBox.getValue());
             task.setPriority(priorityComboBox.getValue());
@@ -425,20 +587,49 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
                 ReminderHandler.deleteRemindersForTask(task.getTitle());
             } else {
                 if (!oldDueDate.equals(newDueDate)) {
-                    ReminderHandler.updateReminderForTask(task.getTitle(), newDueDate);
+                    ReminderHandler.updateReminderForTask(originalTitle, newDueDate); // ✅ Use original title
+                }
+                if (titleChanged) {
+                    ReminderHandler.updateTaskTitleInReminders(originalTitle, newTitle); // ✅ Update title in reminders
                 }
             }
+        
             taskList.sort(Comparator.comparing(Task::getCategory));
             JSONHandler.writeTasks(taskList);
+        
+            updateTaskStatistics(); // ✅ Refresh task statistics after save
+        
             tableView.refresh();
             dialog.close();
         });
         
-
         gridPane.add(saveButton, 1, 6);
         dialog.setScene(new Scene(gridPane, 400, 400));
         dialog.showAndWait();
+    }        
+
+    private boolean isCustomReminderAfterDueDate(String taskTitle, String newDueDate) {
+        List<Reminder> reminders = JSONHandler.readReminders();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
+        try {
+            LocalDate newDueDateParsed = LocalDate.parse(newDueDate, formatter);
+    
+            for (Reminder reminder : reminders) {
+                if (reminder.getTaskTitle().equals(taskTitle) && "Custom date".equalsIgnoreCase(reminder.getReminderType())) {
+                    LocalDate reminderDate = LocalDate.parse(reminder.getDate(), formatter);
+                    if (reminderDate.isAfter(newDueDateParsed)) {
+                        return true; // ✅ Found a "Custom date" reminder after the new due date
+                    }
+                }
+            }
+        } catch (DateTimeParseException e) {
+            System.err.println("Invalid date format: " + newDueDate);
+        }
+        return false;
     }
+    
+    
 
     private void showDeleteConfirmation(Task task, ObservableList<Task> taskList) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -448,26 +639,54 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
     
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                System.out.println("🗑 Deleting task: " + task.getTitle());
-
-                boolean removed = taskList.removeIf(t -> t.getTitle().equals(task.getTitle()));
+                System.out.println("🗑 Attempting to delete task: " + task.getTitle());
     
-                System.out.println("Removal status: " + removed);
-                System.out.println("Updated Task List Before Writing: " + taskList);
-                taskList.sort(Comparator.comparing(Task::getCategory));
-                JSONHandler.writeTasks(taskList);
+                // 🔹 Retrieve latest task list from JSON (ensures we get the correct title)
+                List<Task> latestTasks = JSONHandler.readTasks();
+                
+                // 🔹 Find task in JSON by checking for matching title
+                Optional<Task> matchingTask = latestTasks.stream()
+                    .filter(t -> t.getTitle().equals(task.getTitle()))
+                    .findFirst();
     
+                if (matchingTask.isEmpty()) {
+                    System.out.println("⚠ Task not found in JSON, cannot delete!");
+                    showAlert(tableView.getScene().getWindow(), "Error", "Task not found in records.");
+                    return;
+                }
+    
+                String actualTaskTitle = matchingTask.get().getTitle(); // Use the correct title
+                System.out.println("📌 Task title to delete: " + actualTaskTitle);
+    
+                // ✅ Delete reminders linked to this task
+                ReminderHandler.deleteRemindersForTask(actualTaskTitle);
+    
+                // ✅ Remove from both in-memory list & JSON list
+                boolean removedFromMemory = taskList.removeIf(t -> t.getTitle().equals(actualTaskTitle));
+                boolean removedFromJSON = latestTasks.removeIf(t -> t.getTitle().equals(actualTaskTitle));
+    
+                System.out.println("🔹 Removal status (Memory): " + removedFromMemory);
+                System.out.println("🔹 Removal status (JSON): " + removedFromJSON);
+    
+                if (!removedFromJSON) {
+                    System.out.println("Task could not be removed from JSON. Check logic.");
+                    return;
+                }
+    
+    
+                JSONHandler.writeTasks(latestTasks);
                 List<Task> debugTasks = JSONHandler.readTasks();
-                System.out.println("JSON File After Writing: " + debugTasks);
-
+                System.out.println("✅ JSON File After Writing: " + debugTasks);
+    
                 ObservableList<Task> updatedTaskList = FXCollections.observableArrayList(debugTasks);
                 tableView.setItems(updatedTaskList);
                 tableView.refresh();
     
-                System.out.println("Task deleted and TableView updated.");
+                System.out.println("✅ Task successfully deleted and reminders removed.");
             }
         });
     }
+    
     
 
 private void showAlert(Window owner, String title, String message) {
@@ -478,6 +697,23 @@ private void showAlert(Window owner, String title, String message) {
     alert.setContentText(message);
     alert.showAndWait();
 }
+
+@Override
+public void stop() {
+    System.out.println(" Saving data before exit...");
+
+    JSONHandler.writeTasks(tableView.getItems());
+
+    List<Reminder> reminders = JSONHandler.readReminders();
+    JSONHandler.writeReminders(reminders);
+
+    CategoryHandler.saveCategories();
+
+    PriorityHandler.savePriorities(); 
+
+    System.out.println("All data (tasks, reminders, categories, priorities) successfully saved before exit.");
+}
+
 
     
 

@@ -1,15 +1,7 @@
 [ {
-  "taskTitle" : "TASK",
-  "date" : "18/02/2025",
-  "time" : "12:09",
-  "message" : "sldkj",
-  "reminderType" : "One day before deadline",
-  "customDate" : false
-}, {
-  "taskTitle" : "TASK",
-  "date" : "12/02/2025",
-  "time" : "12:09",
-  "message" : "qlksjd",
-  "reminderType" : "One week before deadline",
+  "taskTitle" : "taskforcheck",
+  "date" : "01/03/2025",
+  "message" : "",
+  "reminderType" : "Custom date",
   "customDate" : false
 } ]
