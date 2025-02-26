@@ -63,4 +63,4 @@ This is a JavaFX-based Task Management application that allows users to create, 
 - **Managing Categories/Priorities**: Use the respective management windows to add, rename, or delete categories and priorities.
 
 
-
+For more information you can see my detailed report.
