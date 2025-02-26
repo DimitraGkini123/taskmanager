@@ -12,25 +12,26 @@ This is a JavaFX-based Task Management application that allows users to create, 
 ## Features
 - **Task Management**: Add, edit, delete, and categorize tasks.
 - **Reminders**: Set custom reminders for tasks.
-- **Priority System**: Assign different priority levels to tasks.
+- **Priorities**: Assign different priority levels to tasks.
 - **Categories**: Organize tasks into custom categories.
 - **Data Persistence**: Tasks, reminders, categories, and priorities are stored in JSON format and persist across sessions.
 - **Task Statistics**: View statistics such as total tasks, completed tasks, and upcoming deadlines.
 
+
 ## Project Structure
 ```
 /taskmanager
+│── vscode/                 # VS Code launch configurations
 │── bin/                    # Compiled Java files
 │── docs/                   # Generated Javadoc documentation
-│── json/                   # JSON files storing application data
 │── lib/                    # External libraries (JAR files)
-│── lib/javafx/             # JavaFX source files
-│── lib/json/               # JSON handling source files
-│── src/                    # Source code directory
-│── README.md               # Project documentation
-│── settings.json           # VS Code project settings
-│── launch.json             # VS Code launch configurations
+│── lib/javafx/             # JavaFX source files and source code files
+│── lib/json/               #JSONHandler                 
+│── medialab                #json files for categories, tasks, priorities, reminders
+│── ui                      #ui for app
 ```
+
+
 
 ## Installation and Setup
 ### Prerequisites
@@ -46,12 +47,12 @@ This is a JavaFX-based Task Management application that allows users to create, 
 
 2. **Run the Application**:
    ```sh
-   java --module-path lib/javafx/lib --add-modules javafx.controls,javafx.fxml -cp bin lib.javafx.TaskManager
+    c:; cd 'c:\Users\Dimitra\Desktop\taskmanager'; & 'C:\Program Files\Java\jdk-23\bin\java.exe' '@C:\Users\Dimitra\AppData\Local\Temp\cp_apjc9596xge6ed0typwm3iffa.argfile' 'lib.javafx.TaskManager'
    ```
 
 3. **Generate Javadoc Documentation**:
    ```sh
-   javadoc -d docs -sourcepath lib -subpackages javafx:json -classpath "bin;lib/javafx/lib/*;lib/*"
+   javadoc -d docs -sourcepath lib -classpath "bin;lib/javafx/lib/*;lib/json/*;lib/jackson-annotations-2.18.1.jar;lib/jackson-core-2.18.1.jar;lib/jackson-databind-2.18.1.jar" lib/javafx/ReminderHandler.java
    ```
 
 ## Usage
@@ -61,23 +62,5 @@ This is a JavaFX-based Task Management application that allows users to create, 
 - **Managing Reminders**: Click "Set Reminder" to add a reminder to a task.
 - **Managing Categories/Priorities**: Use the respective management windows to add, rename, or delete categories and priorities.
 
-## Troubleshooting
-### Common Issues
-1. **JavaFX Runtime Error**:
-   - Ensure JavaFX SDK is correctly referenced in the classpath.
-   - Use the correct `--module-path` and `--add-modules` options when running the application.
 
-2. **Javadoc Generation Issues**:
-   - Ensure the classpath includes all required JAR files (Jackson, JavaFX).
-   - Use the correct `-sourcepath` and `-subpackages` parameters.
-
-3. **Data Not Saving**:
-   - Ensure JSON files have write permissions.
-   - Check for JSON formatting errors if the application crashes while saving.
-
-## License
-This project is licensed under the MIT License.
-
-## Author
-Developed by Dimitra.
 
