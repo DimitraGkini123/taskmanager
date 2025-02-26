@@ -1,15 +1,8 @@
 [ {
-  "taskTitle" : "Task 1",
-  "date" : "26/02/2025",
-  "message" : "submit my project",
-  "reminderType" : "Custom date",
-  "taskDueDate" : "26/02/2025",
-  "customDate" : false
-}, {
-  "taskTitle" : "Strike",
-  "date" : "27/02/2025",
-  "message" : "Tempi Strike",
+  "taskTitle" : "Doctor Appointment",
+  "date" : "05/03/2025",
+  "message" : "sos! go to doctor",
   "reminderType" : "One day before deadline",
-  "taskDueDate" : "28/02/2025",
+  "taskDueDate" : "06/03/2025",
   "customDate" : false
 } ]

@@ -1,22 +1,211 @@
 [ {
-  "title" : "akjosqwhd",
-  "description" : ".a",
-  "category" : "General",
-  "priority" : "Default",
+  "title" : "Complete Assignment",
+  "description" : "Finish the macroeconomics essay.",
+  "category" : "uni",
+  "priority" : "high",
+  "dueDate" : "05/03/2025",
+  "status" : "In Progress"
+}, {
+  "title" : "Team Meeting",
+  "description" : "Discuss the next project phase.",
+  "category" : "work",
+  "priority" : "medium",
+  "dueDate" : "10/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Grocery Shopping",
+  "description" : "Buy vegetables, fruits, and dairy.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "01/03/2025",
+  "status" : "Completed"
+}, {
+  "title" : "Study for Exam",
+  "description" : "Review international monetary policies.",
+  "category" : "uni",
+  "priority" : "high",
+  "dueDate" : "15/03/2025",
+  "status" : "In Progress"
+}, {
+  "title" : "Project Deadline",
+  "description" : "Submit the final IoT security paper.",
+  "category" : "work",
+  "priority" : "high",
   "dueDate" : "20/03/2025",
   "status" : "Open"
 }, {
-  "title" : "k[oqspjwdiohe",
-  "description" : "q",
-  "category" : "General",
+  "title" : "Gym Workout",
+  "description" : "Leg day session at the gym.",
+  "category" : "personal",
+  "priority" : "medium",
+  "dueDate" : "02/03/2025",
+  "status" : "Postponed"
+}, {
+  "title" : "Doctor Appointment",
+  "description" : "Routine check-up at the clinic.",
+  "category" : "health",
   "priority" : "high",
-  "dueDate" : "25/03/2025",
+  "dueDate" : "06/03/2025",
   "status" : "Open"
 }, {
-  "title" : "qksowdjihe",
-  "description" : "'qswdlekfj",
-  "category" : "General",
-  "priority" : "Default",
-  "dueDate" : "12/09/2026",
+  "title" : "Read Research Papers",
+  "description" : "Go through the latest security protocols.",
+  "category" : "uni",
+  "priority" : "medium",
+  "dueDate" : "10/03/2025",
   "status" : "Open"
+}, {
+  "title" : "Plan Weekend Trip",
+  "description" : "Book hotel and transportation.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "12/03/2025",
+  "status" : "Postponed"
+}, {
+  "title" : "Fix Laptop Issue",
+  "description" : "Check the overheating problem.",
+  "category" : "work",
+  "priority" : "high",
+  "dueDate" : "03/03/2025",
+  "status" : "In Progress"
+}, {
+  "title" : "Prepare Presentation",
+  "description" : "Slides for the thesis proposal defense.",
+  "category" : "uni",
+  "priority" : "high",
+  "dueDate" : "18/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Code Review",
+  "description" : "Review PRs for the team project.",
+  "category" : "work",
+  "priority" : "medium",
+  "dueDate" : "07/03/2025",
+  "status" : "Completed"
+}, {
+  "title" : "House Cleaning",
+  "description" : "General cleanup of apartment.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "05/01/2025",
+  "status" : "Delayed"
+}, {
+  "title" : "Update Resume",
+  "description" : "Modify CV for internship applications.",
+  "category" : "work",
+  "priority" : "medium",
+  "dueDate" : "08/03/2025",
+  "status" : "Completed"
+}, {
+  "title" : "Meeting with Advisor",
+  "description" : "Discuss research methodology.",
+  "category" : "uni",
+  "priority" : "high",
+  "dueDate" : "14/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Watch Documentary",
+  "description" : "Security vulnerabilities in IoT.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "09/03/2025",
+  "status" : "Postponed"
+}, {
+  "title" : "Buy Gift",
+  "description" : "Birthday gift for a friend.",
+  "category" : "personal",
+  "priority" : "medium",
+  "dueDate" : "04/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Test New Software",
+  "description" : "Run security tests on attestation model.",
+  "category" : "work",
+  "priority" : "high",
+  "dueDate" : "16/03/2025",
+  "status" : "In Progress"
+}, {
+  "title" : "Finish Novel",
+  "description" : "Complete reading '1984' by Orwell.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "20/12/2024",
+  "status" : "Delayed"
+}, {
+  "title" : "Car Service",
+  "description" : "Routine check-up at service station.",
+  "category" : "personal",
+  "priority" : "medium",
+  "dueDate" : "11/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Write Blog Post",
+  "description" : "Topic: Cybersecurity in IoT.",
+  "category" : "work",
+  "priority" : "medium",
+  "dueDate" : "17/03/2025",
+  "status" : "Postponed"
+}, {
+  "title" : "Backup Files",
+  "description" : "Backup project files to cloud.",
+  "category" : "work",
+  "priority" : "high",
+  "dueDate" : "13/03/2025",
+  "status" : "Completed"
+}, {
+  "title" : "Networking Event",
+  "description" : "Attend cybersecurity conference.",
+  "category" : "work",
+  "priority" : "medium",
+  "dueDate" : "19/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Family Dinner",
+  "description" : "Dinner at parents' house.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "21/03/2025",
+  "status" : "Completed"
+}, {
+  "title" : "Write Research Proposal",
+  "description" : "Draft proposal for IoT attestation model.",
+  "category" : "uni",
+  "priority" : "high",
+  "dueDate" : "22/03/2025",
+  "status" : "In Progress"
+}, {
+  "title" : "Refactor Code",
+  "description" : "Optimize ML attestation model.",
+  "category" : "work",
+  "priority" : "high",
+  "dueDate" : "24/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Meditation Session",
+  "description" : "Relaxation and mindfulness.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "25/03/2025",
+  "status" : "Postponed"
+}, {
+  "title" : "Plan Study Schedule",
+  "description" : "Break down topics for upcoming exams.",
+  "category" : "uni",
+  "priority" : "medium",
+  "dueDate" : "26/03/2025",
+  "status" : "Open"
+}, {
+  "title" : "Security Audit",
+  "description" : "Analyze vulnerabilities in IoT network.",
+  "category" : "work",
+  "priority" : "high",
+  "dueDate" : "28/11/2023",
+  "status" : "Delayed"
+}, {
+  "title" : "Weekend Hike",
+  "description" : "Hiking trip to the mountains.",
+  "category" : "personal",
+  "priority" : "low",
+  "dueDate" : "30/03/2025",
+  "status" : "Postponed"
 } ]
