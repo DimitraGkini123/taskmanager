@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TaskManager",
+            "request": "launch",
+            "mainClass": "TaskManager",
+            "projectName": "taskmanager_a129109"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -21,6 +28,14 @@
             "mainClass": "lib.javafx.TaskManager",
             "projectName": "taskmanager_a129109",
             "vmArgs": "--module-path C:/Users/Dimitra/Desktop/taskmanager/lib/javafx/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "ReminderHandler",
+            "request": "launch",
+            "mainClass": "lib.javafx.ReminderHandler",
+            "projectName": "taskmanager_a129109",
+            "vmArgs": "--module-path lib/javafx/lib --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }

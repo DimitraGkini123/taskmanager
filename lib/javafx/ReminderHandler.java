@@ -103,15 +103,13 @@ public static void showSetReminderDialog(Task task) {
                 return;
             }
 
-            System.out.println("Reminder Date: " + reminderDate + " | Task Due Date: " + dueDate);
-
             if (reminderDate.isAfter(dueDate)) {
                 showAlert("Invalid Date", "Reminder date cannot be after the task's due date (" + dueDate.format(dateFormatter) + ").");
                 return;
             }
             
 
-            Reminder newReminder = new Reminder(task.getTitle(), reminderDate.format(dateFormatter), messageField.getText(), reminderTypeBox.getValue());
+            Reminder newReminder = new Reminder(task.getTitle(), reminderDate.format(dateFormatter), messageField.getText(), reminderTypeBox.getValue(), task.getDueDate());
 
             List<Reminder> reminders = JSONHandler.readReminders();
             if (!reminders.contains(newReminder)) {
@@ -142,7 +140,12 @@ public static void showSetReminderDialog(Task task) {
     dialog.setScene(new Scene(grid, 350, 250));
     dialog.showAndWait();
 }
-
+/**
+ * Updates the task title in all related reminders.
+ * 
+ * @param oldTitle The existing task title to be updated.
+ * @param newTitle The new task title to replace the old one.
+ */
     
     public static void updateTaskTitleInReminders(String oldTitle, String newTitle) {
         List<Reminder> reminders = JSONHandler.readReminders();
@@ -172,7 +175,7 @@ public static void showSetReminderDialog(Task task) {
         Stage reminderStage = new Stage();
         reminderStage.initModality(Modality.APPLICATION_MODAL);
         reminderStage.setTitle("Manage Reminders");
-    
+        
         TableView<Reminder> reminderTable = new TableView<>();
         ObservableList<Reminder> reminders = FXCollections.observableArrayList(JSONHandler.readReminders());
     
@@ -216,14 +219,14 @@ public static void showSetReminderDialog(Task task) {
         
                 // Reload the reminders from JSON to check if deletion actually happened
                 List<Reminder> reloadedReminders = JSONHandler.readReminders();
-                System.out.println("📂 Reminders After Writing to JSON: " + reloadedReminders);
+                System.out.println("Reminders After Writing to JSON: " + reloadedReminders);
         
                 reminderTable.refresh(); 
         
                 if (!reloadedReminders.contains(selectedReminder)) {
-                    System.out.println("✅ Reminder successfully removed from JSON!");
+                    System.out.println("Reminder successfully removed from JSON!");
                 } else {
-                    System.out.println("⚠️ Reminder still exists in JSON! Check writeReminders() method.");
+                    System.out.println("Reminder still exists in JSON! Check writeReminders() method.");
                 }
             } else {
                 showAlert("No Reminder Selected", "Please select a reminder to delete.");
@@ -260,12 +263,17 @@ public static void showSetReminderDialog(Task task) {
     
         TextField dateField = new TextField(reminder.getDate());
         TextField messageField = new TextField(reminder.getMessage());
+      
+
     
         Button saveButton = new Button("Save Changes");
         saveButton.setOnAction(e -> {
         try{
+           
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate newDate = LocalDate.parse(dateField.getText(), dateFormatter);
+            LocalDate taskDueDate = LocalDate.parse(reminder.getTaskDueDate(), dateFormatter);
+          
 
             String parsedDate = newDate.format(dateFormatter);
             if (!dateField.getText().equals(parsedDate)) {
@@ -275,6 +283,12 @@ public static void showSetReminderDialog(Task task) {
                 showAlert("Invalid Date", "Reminder date cannot be in the past.");
                 return;
             }
+            if (newDate.isAfter(taskDueDate)) {
+                showAlert("Invalid Date", "Reminder date cannot be after the task due date: " + taskDueDate);
+                return;
+            }
+
+
 
             reminder.setDate(dateField.getText());
             reminder.setMessage(messageField.getText());
@@ -409,6 +423,21 @@ public static void showSetReminderDialog(Task task) {
             return dateStr; // Return original if parsing fails
         }
     }
+/**
+     * Ενημερώνει την ημερομηνία προθεσμίας μιας εργασίας σε όλες τις σχετικές υπενθυμίσεις.
+     * @param taskTitle  Ο τίτλος της εργασίας.
+     * @param newDueDate Η νέα ημερομηνία προθεσμίας.
+     */
+    public static void updateReminderDueDateForTask(String taskTitle, String newDueDate) {
+        List<Reminder> reminders = JSONHandler.readReminders();
+    
+        for (Reminder reminder : reminders) {
+            reminder.setTaskDueDate(newDueDate);
+        }
+    
+        JSONHandler.writeReminders(reminders);
+    }
+    
     
     
     

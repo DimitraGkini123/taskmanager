@@ -32,12 +32,12 @@ import lib.javafx.CategoryHandler;
 
 public class TaskManager extends Application {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yy");
+    
     private TableView<Task> tableView = new TableView<>();
 
     @Override
     public void start(Stage primaryStage) {
-        showMedialabAssistant(primaryStage); // Open Medialab Assistant First
+        showMedialabAssistant(primaryStage); 
     }
     private Label totalLabel;
     private Label completedLabel;
@@ -49,7 +49,7 @@ private void showMedialabAssistant(Stage primaryStage) {
 
     assistantStage.setTitle("Medialab Assistant");
 
-    // ✅ Create labels for statistics (dynamic updating)
+
     Label titleLabel = new Label("Task Summary");
     titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
@@ -64,7 +64,7 @@ private void showMedialabAssistant(Stage primaryStage) {
     statsBox.setStyle("-fx-padding: 15px; -fx-alignment: center; -fx-background-color: #f0f0f0;");
     statsBox.setMinHeight(180); 
 
-    // ✅ Buttons for actions
+ 
     Label welcomeLabel = new Label("Welcome to Medialab Assistant");
     welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
@@ -72,7 +72,7 @@ private void showMedialabAssistant(Stage primaryStage) {
     manageTasksButton.setMinWidth(250);
     manageTasksButton.setOnAction(e -> {
         showTaskManager(primaryStage);
-        updateTaskStatistics(); // ✅ Refresh statistics
+        updateTaskStatistics();
     });
 
     Button manageCategoriesButton = new Button("See Categories");
@@ -100,7 +100,6 @@ private void showMedialabAssistant(Stage primaryStage) {
     buttonBox.setStyle("-fx-padding: 15px; -fx-alignment: center;");
     buttonBox.setMinHeight(200);
 
-    // ✅ Main layout
     VBox mainLayout = new VBox(20, statsBox, buttonBox);
     mainLayout.setStyle("-fx-padding: 20px; -fx-alignment: center;");
 
@@ -135,7 +134,7 @@ private void showDelayedTasksPopup(Stage owner, ObservableList<Task> taskList) {
     }
 }
 private void updateTaskStatistics() {
-    List<Task> tasks = JSONHandler.readTasks(); // ✅ Reload latest tasks
+    List<Task> tasks = JSONHandler.readTasks(); 
     long totalTasks = tasks.size();
     long completedTasks = tasks.stream().filter(task -> "Completed".equalsIgnoreCase(task.getStatus())).count();
     long delayedTasks = tasks.stream().filter(task -> "Delayed".equalsIgnoreCase(task.getStatus())).count();
@@ -159,10 +158,6 @@ private void updateTaskStatistics() {
         }
     }
         
-        //Timeline reminderChecker = new Timeline(new KeyFrame(Duration.minutes(10), event -> checkReminders()));
-        //reminderChecker.setCycleCount(Animation.INDEFINITE);
-       // reminderChecker.play();
-
     private void showTaskManager(Stage stage) {
         // Load tasks from JSON file using JSONHandler
         List<Task> tasks = JSONHandler.readTasks();
@@ -197,8 +192,13 @@ private void updateTaskStatistics() {
 
         
     // Search Bar UI
+// Create a text field for searching by title
 TextField titleSearchField = new TextField();
 titleSearchField.setPromptText("Search by Title");
+
+// Create a text field for searching by due date
+TextField dueDateField = new TextField();
+dueDateField.setPromptText("Due Date (dd/MM/yyyy)");
 
 // Load categories and priorities, adding an "All" option
 ObservableList<String> categories = FXCollections.observableArrayList("All");
@@ -220,12 +220,13 @@ Button searchButton = new Button("Search");
 searchButton.setOnAction(e -> applyFilters(
     taskList,
     titleSearchField.getText(),
+    dueDateField.getText(),
     categoryFilter.getValue(),
     priorityFilter.getValue()
 ));
 
 // Layout for search bar
-HBox searchBox = new HBox(10, titleSearchField, categoryFilter, priorityFilter, searchButton);
+HBox searchBox = new HBox(10, titleSearchField, dueDateField, categoryFilter, priorityFilter, searchButton);
 searchBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
 
         
@@ -332,18 +333,34 @@ searchBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
         stage.setScene(scene);
         stage.show();
     }
-    private void applyFilters(ObservableList<Task> taskList, String title, String category, String priority) {
-        ObservableList<Task> filteredTasks = FXCollections.observableArrayList(
-            taskList.stream()
-                .filter(task -> (title == null || title.isEmpty() || task.getTitle().toLowerCase().contains(title.toLowerCase())))
-                .filter(task -> (category == null || category.equals("All") || task.getCategory().equals(category)))
-                .filter(task -> (priority == null || priority.equals("All") || task.getPriority().equals(priority)))
-                .toList()
-        );
+    private void applyFilters(ObservableList<Task> taskList, String title, String dueDate, String category, String priority) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        // Filter tasks based on the provided criteria
+        ObservableList<Task> filteredTasks = taskList.filtered(task -> {
+            boolean matchesTitle = title.isEmpty() || task.getTitle().toLowerCase().contains(title.toLowerCase());
+            boolean matchesCategory = category.equals("All") || task.getCategory().equals(category);
+            boolean matchesPriority = priority.equals("All") || task.getPriority().equals(priority);
+            boolean matchesDueDate = true; // Default to true if no due date is provided
+    
+            if (!dueDate.isEmpty()) {
+                try {
+                    LocalDate filterDate = LocalDate.parse(dueDate, formatter);
+                    LocalDate taskDate = LocalDate.parse(task.getDueDate(), formatter);
+                    matchesDueDate = taskDate.equals(filterDate);
+                } catch (DateTimeParseException e) {
+                    System.err.println("Invalid due date format: " + dueDate);
+                    return false; // If the date format is invalid, exclude the task from results
+                }
+            }
+    
+            return matchesTitle && matchesCategory && matchesPriority && matchesDueDate;
+        });
     
         tableView.setItems(filteredTasks);
         tableView.refresh();
     }
+    
 
     private boolean isValidDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -443,17 +460,37 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
     saveButton.setOnAction(e -> {
         String dueDate = dueDateField.getText();
         String Title = titleField.getText().trim();
+         
 
         if (Title.isEmpty()) {
             showAlert(dialog, "Invalid Input", "Task title cannot be empty.");
             return;
         }
-    
+        LocalDate parsedDate = null;
+    try {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        parsedDate = LocalDate.parse(dueDate, dateFormatter);
+
+        String formattedDate = parsedDate.format(dateFormatter);
+        if (!dueDate.equals(formattedDate)) {
+            showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+            return;
+        }
+
+        if (parsedDate.isBefore(LocalDate.now())) {
+            showAlert(dialog, "Invalid Date", "Due date cannot be in the past.");
+            return;
+        }
+    } catch (DateTimeParseException ex) {
+        showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+        return;
+    }
     
         if (!isValidDate(dueDate)) {
             showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
             return; 
         }
+      
         boolean titleExists = taskList.stream().anyMatch(task -> task.getTitle().equalsIgnoreCase(Title));
         if (titleExists) {
             showAlert(dialog, "Duplicate Task Title", "A task with this title already exists. Please choose a different title.");
@@ -539,6 +576,27 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
                 return;
             }
 
+            LocalDate parsedDate = null;
+    try {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        parsedDate = LocalDate.parse(newDueDate, dateFormatter);
+
+        // Ensure parsed date matches input
+        String formattedDate = parsedDate.format(dateFormatter);
+        if (!newDueDate.equals(formattedDate)) {
+            showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+            return;
+        }
+        if (parsedDate.isBefore(LocalDate.now())) {
+            showAlert(dialog, "Invalid Date", "Due date cannot be in the past.");
+            return;
+        }
+    } catch (DateTimeParseException ex) {
+        showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
+        return;
+    }
+
+
             if (!isValidDate(newDueDate)) {
                 showAlert(dialog, "Invalid Date", "Please enter a valid due date in the format dd/MM/yyyy.");
                 return; 
@@ -574,7 +632,7 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
                 }
             }
             boolean titleChanged = !originalTitle.equals(newTitle);
-            
+            boolean dueDateChanged = !oldDueDate.equals(newDueDate);            
 
             task.setTitle(newTitle);
             task.setDescription(descriptionField.getText());
@@ -587,18 +645,20 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
                 ReminderHandler.deleteRemindersForTask(task.getTitle());
             } else {
                 if (!oldDueDate.equals(newDueDate)) {
-                    ReminderHandler.updateReminderForTask(originalTitle, newDueDate); // ✅ Use original title
+                    ReminderHandler.updateReminderForTask(originalTitle, newDueDate); 
                 }
                 if (titleChanged) {
-                    ReminderHandler.updateTaskTitleInReminders(originalTitle, newTitle); // ✅ Update title in reminders
+                    ReminderHandler.updateTaskTitleInReminders(originalTitle, newTitle); 
+                }
+                if(dueDateChanged) {
+                    ReminderHandler.updateReminderDueDateForTask(originalTitle, newDueDate);
                 }
             }
         
             taskList.sort(Comparator.comparing(Task::getCategory));
             JSONHandler.writeTasks(taskList);
         
-            updateTaskStatistics(); // ✅ Refresh task statistics after save
-        
+            updateTaskStatistics(); 
             tableView.refresh();
             dialog.close();
         });
@@ -656,17 +716,16 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
                 }
     
                 String actualTaskTitle = matchingTask.get().getTitle(); // Use the correct title
-                System.out.println("📌 Task title to delete: " + actualTaskTitle);
+                System.out.println("Task title to delete: " + actualTaskTitle);
     
-                // ✅ Delete reminders linked to this task
+                
                 ReminderHandler.deleteRemindersForTask(actualTaskTitle);
     
-                // ✅ Remove from both in-memory list & JSON list
                 boolean removedFromMemory = taskList.removeIf(t -> t.getTitle().equals(actualTaskTitle));
                 boolean removedFromJSON = latestTasks.removeIf(t -> t.getTitle().equals(actualTaskTitle));
     
-                System.out.println("🔹 Removal status (Memory): " + removedFromMemory);
-                System.out.println("🔹 Removal status (JSON): " + removedFromJSON);
+                System.out.println("Removal status (Memory): " + removedFromMemory);
+                System.out.println("Removal status (JSON): " + removedFromJSON);
     
                 if (!removedFromJSON) {
                     System.out.println("Task could not be removed from JSON. Check logic.");
@@ -676,13 +735,14 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
     
                 JSONHandler.writeTasks(latestTasks);
                 List<Task> debugTasks = JSONHandler.readTasks();
-                System.out.println("✅ JSON File After Writing: " + debugTasks);
+                System.out.println(" JSON File After Writing: " + debugTasks);
     
                 ObservableList<Task> updatedTaskList = FXCollections.observableArrayList(debugTasks);
                 tableView.setItems(updatedTaskList);
                 tableView.refresh();
+                updateTaskStatistics();
     
-                System.out.println("✅ Task successfully deleted and reminders removed.");
+                System.out.println(" Task successfully deleted and reminders removed.");
             }
         });
     }
@@ -691,7 +751,7 @@ private void showAddTaskDialog(ObservableList<Task> taskList) {
 
 private void showAlert(Window owner, String title, String message) {
     Alert alert = new Alert(Alert.AlertType.WARNING);
-    alert.initOwner(owner); // ✅ Ensures the popup is attached to the main window
+    alert.initOwner(owner); 
     alert.setTitle(title);
     alert.setHeaderText(null);
     alert.setContentText(message);
@@ -700,19 +760,26 @@ private void showAlert(Window owner, String title, String message) {
 
 @Override
 public void stop() {
-    System.out.println(" Saving data before exit...");
+    System.out.println("Saving data before exit...");
 
-    JSONHandler.writeTasks(tableView.getItems());
+    ObservableList<Task> currentTasks = tableView.getItems();
+
+    if (!currentTasks.isEmpty()) { // Only save if there are tasks
+        JSONHandler.writeTasks(currentTasks);
+        System.out.println("Tasks saved.");
+    } else {
+        System.out.println("No tasks to save, skipping...");
+    }
 
     List<Reminder> reminders = JSONHandler.readReminders();
     JSONHandler.writeReminders(reminders);
 
     CategoryHandler.saveCategories();
-
     PriorityHandler.savePriorities(); 
 
     System.out.println("All data (tasks, reminders, categories, priorities) successfully saved before exit.");
 }
+
 
 
     

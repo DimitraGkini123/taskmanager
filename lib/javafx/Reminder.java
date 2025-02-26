@@ -9,15 +9,22 @@ public class Reminder {
     private String date; // Stored as String in "dd/MM/yyyy" format
     private String message;
     private String reminderType; // Stores: "One day before", "One week before", "One month before", "Custom"
+    private String taskDueDate;
+    
 
     // Default constructor for Jackson
     public Reminder() {}
 
-    public Reminder(String taskTitle, String date,  String message, String reminderType) {
+    public Reminder(String taskTitle, String date,  String message, String reminderType, String taskDueDate ) {
         this.taskTitle = taskTitle;
         this.date = date;
         this.message = message;
         this.reminderType = reminderType;
+        this.taskDueDate = taskDueDate;
+    }
+
+    public String getTaskDueDate() {
+        return taskDueDate;
     }
 
     public String getTaskTitle() {
@@ -35,7 +42,11 @@ public class Reminder {
     public void setDate(String date) {
         this.date = date;
     }
-
+    
+    public void setTaskDueDate(String newDueDate) {
+        this.taskDueDate = newDueDate; 
+    }
+    
 
     public String getMessage() {
         return message;
