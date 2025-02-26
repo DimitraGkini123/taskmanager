@@ -17,6 +17,13 @@ This is a JavaFX-based Task Management application that allows users to create, 
 - **Data Persistence**: Tasks, reminders, categories, and priorities are stored in JSON format and persist across sessions.
 - **Task Statistics**: View statistics such as total tasks, completed tasks, and upcoming deadlines.
 
+##Javadoc for ReminderHandler.java
+Using this command:
+   ```sh
+javadoc -d docs -sourcepath lib -classpath "bin;lib/javafx/lib/*;lib/json/*;lib/jackson-annotations-2.18.1.jar;lib/jackson-core-2.18.1.jar;lib/jackson-databind-2.18.1.jar" lib/javafx/ReminderHandler.java
+  ```
+
+ PS C:\Users\Dimitra\Desktop\taskmanager> javadoc -d docs -sourcepath lib -classpath "bin;lib/javafx/lib/*;lib/json/*;lib/jackson-annotations-2.18.1.jar;lib/jackson-core-2.18.1.jar;lib/jackson-databind-2.18.1.jar" lib/javafx/ReminderHandler.java
 
 ## Project Structure
 ```
