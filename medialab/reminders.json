@@ -5,4 +5,39 @@
   "reminderType" : "One day before deadline",
   "taskDueDate" : "06/03/2025",
   "customDate" : false
+}, {
+  "taskTitle" : "Plan Weekend Trip",
+  "date" : "05/03/2025",
+  "message" : "pack my bags",
+  "reminderType" : "One week before deadline",
+  "taskDueDate" : "12/03/2025",
+  "customDate" : false
+}, {
+  "taskTitle" : "Buy Gift",
+  "date" : "01/03/2025",
+  "message" : "",
+  "reminderType" : "Custom date",
+  "taskDueDate" : "04/03/2025",
+  "customDate" : false
+}, {
+  "taskTitle" : "Car Service",
+  "date" : "10/03/2025",
+  "message" : "call the service place ",
+  "reminderType" : "One day before deadline",
+  "taskDueDate" : "11/03/2025",
+  "customDate" : false
+}, {
+  "taskTitle" : "Read Research Papers",
+  "date" : "03/03/2025",
+  "message" : "gather all the info in a doc",
+  "reminderType" : "One week before deadline",
+  "taskDueDate" : "10/03/2025",
+  "customDate" : false
+}, {
+  "taskTitle" : "Networking Event",
+  "date" : "18/03/2025",
+  "message" : "plan my outfit",
+  "reminderType" : "One day before deadline",
+  "taskDueDate" : "19/03/2025",
+  "customDate" : false
 } ]
